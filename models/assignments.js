@@ -188,3 +188,55 @@ function getAssignmentsByCourseId(cid) {
     });
 }
 exports.getAssignmentsByCourseId=getAssignmentsByCourseId;
+
+
+function getSubmissionCount(asgid) {
+    return new Promise((resolve, reject) => {
+        mysqlPool.query(
+            'SELECT COUNT(*) AS count FROM submissions WHERE assignmentid = ?',
+            [asgid],
+            (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results[0].count);
+                }
+            }
+        );
+    });
+}
+
+function getSubmissionPage(page,asgid) {
+    return new Promise(async (resolve, reject) => {
+        /*
+         * Compute last page number and make sure page is within allowed bounds.
+         * Compute offset into collection.
+         */
+        const count = await getSubmissionCount(parseInt(asgid));
+        console.log(count);
+        const pageSize = 10;
+        const lastPage = Math.ceil(count / pageSize);
+        page = page > lastPage ? lastPage : page;
+        page = page < 1 ? 1 : page;
+        const offset = (page - 1) * pageSize;
+
+        mysqlPool.query(
+            'SELECT * FROM submissions WHERE assignmentid = ? ORDER BY id LIMIT ?,?',
+            [ asgid,offset, pageSize ],
+            (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({
+                        courses: results,
+                        page: page,
+                        totalPages: lastPage,
+                        pageSize: pageSize,
+                        count: count
+                    });
+                }
+            }
+        );
+    });
+}
+exports.getSubmissionPage = getSubmissionPage;

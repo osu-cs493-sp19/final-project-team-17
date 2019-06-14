@@ -10,7 +10,7 @@ const AssignmentsSchema = {
     points: { required: true },
     due: { required: true }
 };
-const {PushTheFileInFs,getAssignmentsById,updateAssignment,getCourseByid,getSumbitByAsgid,insertNewAssignments,insertNewSumbit,deleteAssignmentByid,getDownloadStreamByFilename} = require("../models/assignments");
+const {PushTheFileInFs,getAssignmentsById,updateAssignment,getCourseByid,getSumbitByAsgid,insertNewAssignments,insertNewSumbit,deleteAssignmentByid,getDownloadStreamByFilename,getSubmissionPage} = require("../models/assignments");
 const fs = require('fs');
 
 const upload = multer({
@@ -182,6 +182,11 @@ router.put("/:id",requireAuthentication,async(req,res)=>{
             }
         }
     }
+    if(req.usertype=="student"){
+        res.status(401).send({
+            error:"NotPermission"
+        });
+    }
     }
 );
 
@@ -214,8 +219,18 @@ router.get("/:id/submissions",requireAuthentication,async(req,res)=>{
     const courseid=parseInt(asg.courseid);
     const course=await getCourseByid(courseid);
     if(req.usertype=="admin"||parseInt(course.instructor)==parseInt(req.user)){
-        const result=await getSumbitByAsgid(id);
-        res.status(200).send(result);
+        //const result=await getSumbitByAsgid(id);
+        const coursePage = await getSubmissionPage(parseInt(req.query.page) || 1,id);
+        coursePage.links = {};
+        if (coursePage.page < coursePage.totalPages) {
+            coursePage.links.nextPage = `/courses?page=${coursePage.page + 1}`;
+            coursePage.links.lastPage = `/courses?page=${coursePage.totalPages}`;
+        }
+        if (coursePage.page > 1) {
+            coursePage.links.prevPage = `/courses?page=${coursePage.page - 1}`;
+            coursePage.links.firstPage = '/courses?page=1';
+        }
+        res.status(200).send(coursePage);
     }else{
         res.status(401).send({
             error:"Not Autorized"
