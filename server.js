@@ -25,7 +25,7 @@ const redisHost = process.env.REDIS_HOST || "127.0.0.1";
 const redisClient = redis.createClient(redisPort, redisHost);
 
 const rateLimitWindowMillis = 60000;
-const rateLimitWindowMaxRequests = 5;
+const rateLimitWindowMaxRequests = 10;
 
 function getTokenBucket(ip) {
     return new Promise((resolve, reject) => {
