@@ -12,7 +12,7 @@ const AssignmentsSchema = {
 };
 const {PushTheFileInFs,getAssignmentsById,updateAssignment,getCourseByid,getSumbitByAsgid,insertNewAssignments,insertNewSumbit,deleteAssignmentByid,getDownloadStreamByFilename,getSubmissionPage} = require("../models/assignments");
 const fs = require('fs');
-
+const {CheckIfEnroll} = require("../models/enrollment");
 const upload = multer({
     storage: multer.diskStorage({
         destination: `${__dirname}/uploads`,
@@ -241,6 +241,14 @@ router.get("/:id/submissions",requireAuthentication,async(req,res)=>{
 
 router.post("/:id/submissions",requireAuthentication,upload.single("file"),async(req,res)=>{
     assignmentid=parseInt(req.params.id);
+    asg=await getAssignmentsById(assignmentid);
+    courses=await getCourseByid(asg.courseid);
+    enroll=await CheckIfEnroll(courses.id,req.user);
+    if(enroll==0){
+        res.status(401).send({
+            error:"Not Enroll class"
+        });
+    }
     if(req.file){
         const subf = {
                 path: req.file.path,

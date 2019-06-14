@@ -89,3 +89,21 @@ exports.getProcessedStudentInfo = function(studentInfo){
     }
     return csv;
 };
+
+async function CheckIfEnroll(cid,sid) {
+    return new Promise((resolve, reject) => {
+        mysqlPool.query(
+            'SELECT COUNT(*) AS count FROM enrollment WHERE studentid=? AND courseid=?',
+            [sid,cid],
+            (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results[0].count);
+                }
+            }
+        );
+    });
+};
+
+exports.CheckIfEnroll=CheckIfEnroll;
