@@ -66,7 +66,7 @@ exports.removeEnrollmentById= removeEnrollmentById;
 async function getStudentInfoByCourseId(cid) {
     return new Promise((resolve, reject) => {
         mysqlPool.query(
-            'SELECT * FROM users,enrollment WHERE enrollment.courseid = ? AND users.id = enrollment.studentid',
+            'SELECT users.id,users.name,users.email FROM users,enrollment WHERE enrollment.courseid = ? AND users.id = enrollment.studentid',
             cid,
             function (err, result) {
                 if (err) {

@@ -42,9 +42,6 @@ function removeUploadedFile(file) {
 router.post("/",requireAuthentication,async(req,res)=>{
     console.log("Hello1");
     console.log(req.user);
-    if(req.usertype=="instructor"){
-        console.log("Hello4")
-    }
     if(req.usertype=="admin"){
         console.log("Hello3");
         try{
@@ -75,7 +72,7 @@ router.post("/",requireAuthentication,async(req,res)=>{
         if(req.body.courseid){
             console.log(1);
             const courseinfo=await getCourseByid(parseInt(req.body.courseid));
-            if(courseinfo.instructor==req.user){
+            if(courseinfo.instructor && courseinfo.instructor==req.user){
                 try{
                     if(1==1){
                         const id=await insertNewAssignments(req.body);
@@ -101,13 +98,27 @@ router.post("/",requireAuthentication,async(req,res)=>{
                    error:"NotPermission"
                 });
             }
+        }else{
+            
+                res.status(400).send({
+                    error:"Not a vaild assignment object"
+                })
         }
+    }else{
+        res.status(401).send({
+            error:"No Permission"
+         });
     }
 });
 
-router.get("/:id",async(req,res)=>{
+router.get("/:id",async(req,res,next)=>{
     const id=parseInt(req.params.id);
     const assignment=await getAssignmentsById(id);
+    // if(!assignment.length){
+    //     res.status(404).send({
+    //         error:"No assignment found"
+    //     });
+    // }
     res.status(200).send(assignment);
 });
 
@@ -191,6 +202,7 @@ router.put("/:id",requireAuthentication,async(req,res)=>{
 );
 
 router.delete("/:id",requireAuthentication,async(req,res)=>{
+    try{
     if(req.usertype=="admin"){
         const id=parseInt(req.params.id);
         const result=await deleteAssignmentByid(id);
@@ -209,6 +221,11 @@ router.delete("/:id",requireAuthentication,async(req,res)=>{
              res.status(204).end();
             }
         }
+    }
+    }catch(err){
+        res.status(500).send({
+            error: "Error on updating the assignment"
+        });
     }
 });
 
