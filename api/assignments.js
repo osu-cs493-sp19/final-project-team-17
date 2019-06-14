@@ -222,6 +222,11 @@ router.delete("/:id",requireAuthentication,async(req,res)=>{
             }
         }
     }
+    
+        res.status(403).send({
+            error: "No permission"
+        });
+    
     }catch(err){
         res.status(500).send({
             error: "Error on updating the assignment"
@@ -257,6 +262,7 @@ router.get("/:id/submissions",requireAuthentication,async(req,res)=>{
 
 
 router.post("/:id/submissions",requireAuthentication,upload.single("file"),async(req,res)=>{
+    try{
     assignmentid=parseInt(req.params.id);
     asg=await getAssignmentsById(assignmentid);
     courses=await getCourseByid(asg.courseid);
@@ -294,6 +300,11 @@ router.post("/:id/submissions",requireAuthentication,upload.single("file"),async
             error:"Not a vaild assignment object"
         });
     }
+}catch(err){
+    res.status(500).send({
+        error:"Err when submit the assignment"
+     });
+}
 });
 
 router.get('/files/:filename', (req, res, next) => {
