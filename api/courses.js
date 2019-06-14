@@ -59,11 +59,11 @@ router.get('/:id/students', requireAuthentication ,requireAdmin,async (req,res,n
       }
       if(userAdmin.role == "instructor"){
         console.log(course);
-        const courseInstructorNum = course[0].instructor;
-        const instructorNum = await getIdByemail(req.user);
+        const courseInstructorNum = course.instructor;
+        const instructorNum = req.user;
         console.log(courseInstructorNum);
         console.log(instructorNum);
-        if(courseInstructorNum != instructorNum.id){
+        if(courseInstructorNum != instructorNum){
           res.status(403).send({
             error: "No permission to checkout students."
           });
@@ -103,11 +103,11 @@ router.get('/:id/roster', requireAuthentication ,requireAdmin,async (req,res,nex
       }
       if(userAdmin.role == "instructor"){
         console.log(course);
-        const courseInstructorNum = course[0].instructor;
-        const instructorNum = await getIdByemail(req.user);
+        const courseInstructorNum = course.instructor;
+          const instructorNum = req.user;
         console.log(courseInstructorNum);
         console.log(instructorNum);
-        if(courseInstructorNum != instructorNum.id){
+        if(courseInstructorNum != instructorNum){
           res.status(403).send({
             error: "No permission to checkout students."
           });
@@ -151,11 +151,11 @@ router.post('/:id/students', requireAuthentication ,requireAdmin,async (req,res,
         }
         if(userAdmin.role == "instructor"){
           console.log(course);
-          const courseInstructorNum = course[0].instructor;
-          const instructorNum = await getIdByemail(req.user);
+          const courseInstructorNum = course.instructor;
+          const instructorNum = req.user;
           console.log(courseInstructorNum);
           console.log(instructorNum);
-          if(courseInstructorNum != instructorNum.id){
+          if(courseInstructorNum != instructorNum){
             res.status(403).send({
               error: "No permission to manage students."
             });
