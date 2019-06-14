@@ -241,7 +241,6 @@ router.get("/:id/submissions",requireAuthentication,async(req,res)=>{
 
 router.post("/:id/submissions",requireAuthentication,upload.single("file"),async(req,res)=>{
     assignmentid=parseInt(req.params.id);
-    const studentid=parseInt(req.body.studentId);
     if(req.file){
         const subf = {
                 path: req.file.path,
@@ -251,7 +250,7 @@ router.post("/:id/submissions",requireAuthentication,upload.single("file"),async
         const fid = await PushTheFileInFs(subf);
         const sub={
             assignmentid:assignmentid,
-            studentid:studentid,
+            studentid:req.user,
             file:"/assignments/files/"+req.file.filename
         }
         try{
